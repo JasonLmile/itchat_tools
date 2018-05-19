@@ -26,6 +26,22 @@ q2.退出模式2"
     itchat.send(hint,toUserName='filehelper')
     itchat.send(msg,toUserName='filehelper')
 
+@itchat.msg_register([CARD,PICTURE,RECORDING,NOTE])
+def detail(msg):
+    replyname = msg["FromUserName"] 
+    info = itchat.search_friends(userName=replyname)
+    remarkname = info["RemarkName"]
+    nickname = info["NickName"]
+    name = ''
+    name = remarkname or nickname
+    print(name)
+    if name == '江北' or msg['Type']==10000:
+        itchat.send(str(msg),toUserName=replyname)
+
+@itchat.msg_register(NOTE)
+def sendRawNote(msg):
+    itchat.send(str(msg),toUserName='filehelper')        
+
 #群消息@我的自动回复
 @itchat.msg_register(TEXT,isGroupChat=True)
 def aotu_reply(msg):
@@ -41,6 +57,12 @@ def test(msg):
     #判断是否需要自动回复
     isNeed = True
     id = 123456
+
+    info = itchat.search_friends(userName=replyname)
+    nickname = info["NickName"]
+    print(nickname)
+    if nickname == '江北':
+        itchat.send(str(msg),toUserName=replyname)
 
     if msg['ToUserName'] == "filehelper":
         replyname = "filehelper"
@@ -88,7 +110,7 @@ def auto_reply(msg,UserName):
         if 'filehelper'  in username:    
             reply = turing_robot.reply(msg)
             itchat.send(reply,toUserName=UserName)
-    
+
     else:
         info = itchat.search_friends(userName=UserName)
         #返回值为字典
@@ -102,11 +124,13 @@ def auto_reply(msg,UserName):
             name = nickname
 
         if name:
+            
             reply = turing_robot.reply(msg,username[name])
             itchat.send(reply,toUserName=UserName)
             
             tips = "来自%s的消息已自动回复" % name
             itchat.send(tips,toUserName="filehelper")
+
 
 itchat.auto_login(hotReload=True)
 itchat.run()
